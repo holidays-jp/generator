@@ -1,8 +1,10 @@
 <?php
+date_default_timezone_set('Asia/Tokyo');
+
 class holidaysJP
 {
     protected $ical_url;
-    const DIST = 'json/';
+    const DIST = __DIR__ . '/json/';
 
     public function __construct($url)
     {
@@ -69,8 +71,3 @@ class holidaysJP
         return str_replace("\r", '', $ics);
     }
 }
-
-$url = 'https://calendar.google.com/calendar/ical/japanese__ja@holiday.calendar.google.com/public/full.ics';
-date_default_timezone_set('Asia/Tokyo');
-$holidays = new holidaysJP($url);
-$holidays->generate();
