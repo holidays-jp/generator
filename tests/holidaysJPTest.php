@@ -1,6 +1,9 @@
 <?php
 class holidaysJPTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * ical解析関連のテスト
+     */
     public function testJson()
     {
         $holidays = new holidaysJP(__DIR__ . '/testdata.ics');
@@ -15,30 +18,30 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $main_data);
     }
 
+    /**
+     * ファイル生成に関するテスト
+     */
     public function testGenerator()
     {
         $url = 'https://calendar.google.com/calendar/ical/japanese__ja@holiday.calendar.google.com/public/full.ics';
         $holidays = new holidaysJP($url);
         $holidays->generate();
 
-        $dist = dirname(__DIR__) . '/json';
+        $this->checkJsonFile('date.json');
+        $this->checkJsonFile('datetime.json');
+        $this->checkJsonFile(date('Y') . '/date.json');
+        $this->checkJsonFile(date('Y') . '/datetime.json');
+    }
 
-        // date.json
-        $file_name = "{$dist}/date.json";
-        $this->assertFileExists($file_name);
-        $data = json_decode(file_get_contents($file_name));
-        $this->assertGreaterThanOrEqual(1, count($data));
-
-        // datetime.json
-        $file_name = "{$dist}/datetime.json";
-        $this->assertFileExists($file_name);
-        $data = json_decode(file_get_contents($file_name));
-        $this->assertGreaterThanOrEqual(1, count($data));
-
-        // this year date.json
-        $file_name = "{$dist}/" . date('Y') . "/date.json";
-        $this->assertFileExists($file_name);
-        $data = json_decode(file_get_contents($file_name));
-        $this->assertGreaterThanOrEqual(1, count($data));
+    /**
+     * ファイルが存在し、データが1件よりも多く入っているか
+     * @param $filename
+     */
+    public function checkJsonFile($filename)
+    {
+        $filename = dirname(__DIR__) . "/json/{$filename}";
+        $this->assertFileExists($filename);
+        $data = json_decode(file_get_contents($filename), true);
+        $this->assertGreaterThan(1, count($data));
     }
 }
