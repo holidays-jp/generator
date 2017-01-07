@@ -1,10 +1,4 @@
 <?php
-function loader($class)
-{
-    $file = "app/{$class}.php";
-    if (file_exists($file)) {
-        require $file;
-    }
-}
+date_default_timezone_set('Asia/Tokyo');
 
-spl_autoload_register('loader');
+require dirname(__DIR__) . "/vendor/autoload.php";

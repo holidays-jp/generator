@@ -1,4 +1,6 @@
 <?php
+use HolidaysJP\holidaysJP;
+
 class holidaysJPTest extends PHPUnit_Framework_TestCase
 {
     /**
