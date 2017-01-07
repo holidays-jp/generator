@@ -20,34 +20,6 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $main_data);
     }
 
-    public function testYearly()
-    {
-        $input = [
-            strtotime('2016-01-01') => 'a',
-            strtotime('2017-02-01') => 'b',
-            strtotime('2018-03-01') => 'c',
-            strtotime('2017-04-01') => 'd',
-        ];
-        $expected = [
-            '2016' => [
-                strtotime('2016-01-01') => 'a',
-            ],
-            '2017' => [
-                strtotime('2017-02-01') => 'b',
-                strtotime('2017-04-01') => 'd',
-            ],
-            '2018' => [
-                strtotime('2018-03-01') => 'c',
-            ],
-        ];
-
-        $holidays = new holidaysJP();
-        $result = $holidays->convert_yearly_data($input);
-
-        $this->assertEquals($expected, $result);
-    }
-
-
     /**
      * ファイル生成に関するテスト
      */

@@ -31,7 +31,13 @@ class holidaysJP
 
         $this->generate_api_file($holidays);
 
-        $yearly = $this->convert_yearly_data($holidays);
+        // データを年別に分解
+        $yearly = Collection::make($holidays)
+                    ->groupBy(function ($item, $key) {
+                        return date('Y', $key);
+                    }, true)
+                    ->toArray();
+
         foreach ($yearly as $year => $ary) {
             $this->generate_api_file($ary, $year);
         }
@@ -80,21 +86,6 @@ class holidaysJP
         // 日付順にソートして返却
         ksort($dates);
         return $dates;
-    }
-
-
-    /**
-     * データを年別に分解して返却
-     * @param $data
-     * @return array
-     */
-    function convert_yearly_data($data)
-    {
-        $yearly = Collection::make($data)->groupBy(function ($item, $key) {
-            return date('Y', $key);
-        }, true)->toArray();
-
-        return $yearly;
     }
 
 
