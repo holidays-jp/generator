@@ -1,6 +1,8 @@
 <?php
 namespace HolidaysJP;
 
+use Illuminate\Support\Collection;
+
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 class holidaysJP
@@ -88,11 +90,9 @@ class holidaysJP
      */
     function convert_yearly_data($data)
     {
-        $yearly = [];
-
-        foreach ($data as $time => $holiday) {
-            $yearly[date('Y', $time)][$time] = $holiday;
-        }
+        $yearly = Collection::make($data)->groupBy(function ($item, $key) {
+            return date('Y', $key);
+        }, true)->toArray();
 
         return $yearly;
     }
