@@ -1,3 +1,5 @@
 api/
-travis_key*
 json/
+travis_key*
+
+/vendor/

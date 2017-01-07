@@ -1,4 +1,7 @@
 <?php
+use HolidaysJP\holidaysJP;
+use Carbon\Carbon;
+
 class holidaysJPTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -7,8 +10,8 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
     public function testJson()
     {
         $holidays = new holidaysJP(__DIR__ . '/testdata.ics');
-        $data = $holidays->get_ical();
-        $main_data = $holidays->generate_main_json($data);
+        $data = $holidays->get_ical_data();
+        $main_data = $holidays->convert_ical_to_array($data);
 
         $expected = [
             1420038000 => '元日',
@@ -23,25 +26,39 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
      */
     public function testGenerator()
     {
+        // 実際のデータの生成
         $url = 'https://calendar.google.com/calendar/ical/japanese__ja@holiday.calendar.google.com/public/full.ics';
         $holidays = new holidaysJP($url);
         $holidays->generate();
 
-        $this->checkJsonFile('date.json');
-        $this->checkJsonFile('datetime.json');
-        $this->checkJsonFile(date('Y') . '/date.json');
-        $this->checkJsonFile(date('Y') . '/datetime.json');
+        $year = Carbon::now()->year;
+        $this->checkApiFile('date.json', $year);
+        $this->checkApiFile('datetime.json', $year, true);
+
+        $this->checkApiFile("{$year}/date.json", $year);
+        $this->checkApiFile("{$year}/datetime.json", $year, true);
+
+        $nextyear = $year + 1;
+        $this->checkApiFile("{$nextyear}/date.json", $nextyear);
+        $this->checkApiFile("{$nextyear}/datetime.json", $nextyear, true);
     }
 
     /**
-     * ファイルが存在し、データが1件よりも多く入っているか
+     * APIファイルが存在し、データが入っているか
      * @param $filename
+     * @param $year
+     * @param bool $is_datetime
      */
-    public function checkJsonFile($filename)
+    private function checkApiFile($filename, $year, $is_datetime = false)
     {
         $filename = dirname(__DIR__) . "/json/{$filename}";
         $this->assertFileExists($filename);
+
         $data = json_decode(file_get_contents($filename), true);
-        $this->assertGreaterThan(1, count($data));
+
+        // 元日のデータが入っているか
+        $dt = Carbon::createFromDate($year)->startOfYear();
+        $key = ($is_datetime) ? $dt->timestamp : $dt->toDateString();
+        $this->assertArrayHasKey($key, $data, $filename);
     }
 }

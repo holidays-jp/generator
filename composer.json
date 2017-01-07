@@ -1,0 +1,12 @@
+{
+    "require": {
+        "illuminate/support": "^5.3",
+        "phpunit/phpunit": "^5.7",
+        "nesbot/carbon": "^1.21"
+    },
+    "autoload": {
+        "psr-4": {
+            "HolidaysJP\\": "app/"
+        }
+    }
+}
