@@ -64,29 +64,29 @@ class holidaysJP
      */
     function convert_ical_to_array($data)
     {
-        $dates = [];
+        $results = [];
 
         // イベントごとに区切って配列化
         $events = explode('END:VEVENT', $data);
 
         foreach ($events as $event) {
             // 日付を求める
-            if (preg_match('/DTSTART;\D*(\d+)/m', $event, $date) != 1) {
+            if (preg_match('/DTSTART;\D*(\d+)/m', $event, $m) != 1) {
                 continue;
             }
-            $datetime = strtotime($date[1]);
+            $datetime = strtotime($m[1]);
 
             // サマリ(祝日名)を求める
             if (preg_match('/SUMMARY:(.+?)\n/m', $event, $summary) != 1) {
                 continue;
             }
 
-            $dates[$datetime] = $summary[1];
+            $results[$datetime] = $summary[1];
         }
 
         // 日付順にソートして返却
-        ksort($dates);
-        return $dates;
+        ksort($results);
+        return $results;
     }
 
 
