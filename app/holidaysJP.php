@@ -11,7 +11,7 @@ class holidaysJP
      * holidaysJP constructor.
      * @param $url
      */
-    public function __construct($url)
+    public function __construct($url = null)
     {
         $this->ical_url = $url;
     }

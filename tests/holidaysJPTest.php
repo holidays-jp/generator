@@ -18,11 +18,40 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $main_data);
     }
 
+    public function testYearly()
+    {
+        $input = [
+            strtotime('2016-01-01') => 'a',
+            strtotime('2017-02-01') => 'b',
+            strtotime('2018-03-01') => 'c',
+            strtotime('2017-04-01') => 'd',
+        ];
+        $expected = [
+            '2016' => [
+                strtotime('2016-01-01') => 'a',
+            ],
+            '2017' => [
+                strtotime('2017-02-01') => 'b',
+                strtotime('2017-04-01') => 'd',
+            ],
+            '2018' => [
+                strtotime('2018-03-01') => 'c',
+            ],
+        ];
+
+        $holidays = new holidaysJP();
+        $result = $holidays->convert_yearly_data($input);
+
+        $this->assertEquals($expected, $result);
+    }
+
+
     /**
      * ファイル生成に関するテスト
      */
     public function testGenerator()
     {
+        // 実際のデータの生成
         $url = 'https://calendar.google.com/calendar/ical/japanese__ja@holiday.calendar.google.com/public/full.ics';
         $holidays = new holidaysJP($url);
         $holidays->generate();
@@ -37,7 +66,7 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
      * ファイルが存在し、データが1件よりも多く入っているか
      * @param $filename
      */
-    public function checkJsonFile($filename)
+    private function checkJsonFile($filename)
     {
         $filename = dirname(__DIR__) . "/json/{$filename}";
         $this->assertFileExists($filename);
