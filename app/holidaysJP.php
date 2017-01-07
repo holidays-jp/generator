@@ -4,7 +4,7 @@ date_default_timezone_set('Asia/Tokyo');
 class holidaysJP
 {
     protected $ical_url;
-    const DIST = __DIR__ . '/json/';
+    const DIST = __DIR__ . '/../json/';
 
 
     /**

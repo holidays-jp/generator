@@ -1,7 +1,7 @@
 <?php
 function loader($class)
 {
-    $file = $class . '.php';
+    $file = "app/{$class}.php";
     if (file_exists($file)) {
         require $file;
     }
