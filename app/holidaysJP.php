@@ -1,6 +1,7 @@
 <?php
 namespace HolidaysJP;
 
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -34,7 +35,7 @@ class holidaysJP
         // データを年別に分解
         $yearly = Collection::make($holidays)
                     ->groupBy(function ($item, $key) {
-                        return date('Y', $key);
+                        return Carbon::createFromTimestamp($key)->year;
                     }, true)
                     ->toArray();
 
@@ -107,7 +108,7 @@ class holidaysJP
         // キーをYMD形式に変換して出力
         $date_data = Collection::make($data)
             ->keyBy(function ($item, $key) {
-                return date('Y-m-d', $key);
+                return Carbon::createFromTimestamp($key)->toDateString();
             })
             ->toArray();
 

@@ -1,5 +1,6 @@
 <?php
 use HolidaysJP\holidaysJP;
+use Carbon\Carbon;
 
 class holidaysJPTest extends PHPUnit_Framework_TestCase
 {
@@ -30,7 +31,7 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
         $holidays = new holidaysJP($url);
         $holidays->generate();
 
-        $year = date('Y');
+        $year = Carbon::now()->year;
         $this->checkApiFile('date.json', $year);
         $this->checkApiFile('datetime.json', $year, true);
 
@@ -46,17 +47,18 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
      * APIファイルが存在し、データが入っているか
      * @param $filename
      * @param $year
-     * @param bool $is_date
+     * @param bool $is_datetime
      */
     private function checkApiFile($filename, $year, $is_datetime = false)
     {
         $filename = dirname(__DIR__) . "/json/{$filename}";
         $this->assertFileExists($filename);
 
-        // 元日のデータが入っているか
-        $time = strtotime("{$year}-01-01");
-        $key = ($is_datetime) ? $time : date('Y-m-d', $time);
         $data = json_decode(file_get_contents($filename), true);
+
+        // 元日のデータが入っているか
+        $dt = Carbon::createFromDate($year)->startOfYear();
+        $key = ($is_datetime) ? $dt->timestamp : $dt->toDateString();
         $this->assertArrayHasKey($key, $data, $filename);
     }
 }
