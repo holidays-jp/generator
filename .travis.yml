@@ -3,6 +3,10 @@ language: php
 php:
   - 7.0
 
+branches:
+  only:
+    - master
+
 before_script:
   - mkdir json
 
