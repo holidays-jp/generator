@@ -30,21 +30,33 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
         $holidays = new holidaysJP($url);
         $holidays->generate();
 
-        $this->checkJsonFile('date.json');
-        $this->checkJsonFile('datetime.json');
-        $this->checkJsonFile(date('Y') . '/date.json');
-        $this->checkJsonFile(date('Y') . '/datetime.json');
+        $year = date('Y');
+        $this->checkApiFile('date.json', $year);
+        $this->checkApiFile('datetime.json', $year, true);
+
+        $this->checkApiFile("{$year}/date.json", $year);
+        $this->checkApiFile("{$year}/datetime.json", $year, true);
+
+        $nextyear = $year + 1;
+        $this->checkApiFile("{$nextyear}/date.json", $nextyear);
+        $this->checkApiFile("{$nextyear}/datetime.json", $nextyear, true);
     }
 
     /**
-     * ファイルが存在し、データが1件よりも多く入っているか
+     * APIファイルが存在し、データが入っているか
      * @param $filename
+     * @param $year
+     * @param bool $is_date
      */
-    private function checkJsonFile($filename)
+    private function checkApiFile($filename, $year, $is_datetime = false)
     {
         $filename = dirname(__DIR__) . "/json/{$filename}";
         $this->assertFileExists($filename);
+
+        // 元日のデータが入っているか
+        $time = strtotime("{$year}-01-01");
+        $key = ($is_datetime) ? $time : date('Y-m-d', $time);
         $data = json_decode(file_get_contents($filename), true);
-        $this->assertGreaterThan(1, count($data));
+        $this->assertArrayHasKey($key, $data, $filename);
     }
 }

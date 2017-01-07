@@ -104,11 +104,12 @@ class holidaysJP
         // ファイル出力
         $this->output_json_file("{$dir}/datetime.json", $data);
 
-        // YMD形式データに変換して出力
-        $date_data = [];
-        foreach ($data as $time => $holiday) {
-            $date_data[date('Y-m-d', $time)] = $holiday;
-        }
+        // キーをYMD形式に変換して出力
+        $date_data = Collection::make($data)
+            ->keyBy(function ($item, $key) {
+                return date('Y-m-d', $key);
+            })
+            ->toArray();
 
         $this->output_json_file("{$dir}/date.json", $date_data);
     }
