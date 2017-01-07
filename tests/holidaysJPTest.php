@@ -7,8 +7,8 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
     public function testJson()
     {
         $holidays = new holidaysJP(__DIR__ . '/testdata.ics');
-        $data = $holidays->get_ical();
-        $main_data = $holidays->generate_main_json($data);
+        $data = $holidays->get_ical_data();
+        $main_data = $holidays->convert_ical_to_array($data);
 
         $expected = [
             1420038000 => '元日',

@@ -4,7 +4,7 @@ date_default_timezone_set('Asia/Tokyo');
 class holidaysJP
 {
     protected $ical_url;
-    const DIST = __DIR__ . '/../json/';
+    const DIST = __DIR__ . '/../json';
 
 
     /**
@@ -18,21 +18,40 @@ class holidaysJP
 
 
     /**
-     * generate
+     * API生成 メイン処理
      */
     public function generate()
     {
-        $data = $this->get_ical();
-        $main_data = $this->generate_main_json($data);
-        $this->output_json($main_data);
+        $data = $this->get_ical_data();
+        $holidays = $this->convert_ical_to_array($data);
+
+        $this->generate_api_file($holidays);
+
+        $yearly = $this->convert_yearly_data($holidays);
+        foreach ($yearly as $year => $ary) {
+            $this->generate_api_file($ary, $year);
+        }
     }
 
 
     /**
+     * iCalデータの取得 (不要文字などの削除)
+     * @return mixed
+     */
+    function get_ical_data()
+    {
+        // iCal データの取得
+        $ics = file_get_contents($this->ical_url);
+        return str_replace("\r", '', $ics);
+    }
+
+
+    /**
+     * iCal形式のデータを配列に変換
      * @param $data
      * @return array
      */
-    function generate_main_json($data)
+    function convert_ical_to_array($data)
     {
         $dates = [];
 
@@ -61,45 +80,54 @@ class holidaysJP
 
 
     /**
+     * データを年別に分解して返却
      * @param $data
+     * @return array
      */
-    function output_json($data)
+    function convert_yearly_data($data)
     {
-        $data_date = [];
         $yearly = [];
-        $yearly_date = [];
 
-        foreach ($data as $key => $value) {
-            $y = date('Y', $key);
-            $ymd = date('Y-m-d', $key);
-
-            $data_date[$ymd] = $value;
-            $yearly[$y][$key] = $value;
-            $yearly_date[$y][$ymd] = $value;
+        foreach ($data as $time => $holiday) {
+            $yearly[date('Y', $time)][$time] = $holiday;
         }
 
-        file_put_contents(self::DIST . 'datetime.json', json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-        file_put_contents(self::DIST . 'date.json', json_encode($data_date, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-
-        foreach ($yearly as $year => $data) {
-            $dir = self::DIST . $year;
-            if (! is_dir($dir)) {
-                mkdir($dir);
-            }
-
-            file_put_contents(self::DIST . $year . '/datetime.json', json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-            file_put_contents(self::DIST . $year . '/date.json', json_encode($yearly_date[$year], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-        }
+        return $yearly;
     }
 
 
     /**
-     * @return mixed
+     * APIデータをファイルに出力
+     * @param $data
+     * @param string $year
      */
-    function get_ical()
+    function generate_api_file($data, $year = '')
     {
-        // iCal データの取得
-        $ics = file_get_contents($this->ical_url);
-        return str_replace("\r", '', $ics);
+        $dir = (! empty($year)) ? self::DIST.'/'.$year : self::DIST;
+        if (! is_dir($dir)) {
+            mkdir($dir);
+        }
+
+        // ファイル出力
+        $this->output_json_file("{$dir}/datetime.json", $data);
+
+        // YMD形式データに変換して出力
+        $date_data = [];
+        foreach ($data as $time => $holiday) {
+            $date_data[date('Y-m-d', $time)] = $holiday;
+        }
+
+        $this->output_json_file("{$dir}/date.json", $date_data);
+    }
+
+
+    /**
+     * JSONファイルを出力
+     * @param $filename
+     * @param $data
+     */
+    protected function output_json_file($filename, $data)
+    {
+        file_put_contents($filename, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
     }
 }
