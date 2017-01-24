@@ -6,6 +6,11 @@ use Illuminate\Support\Collection;
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
+
+/**
+ * Class holidaysJP
+ * @package HolidaysJP
+ */
 class holidaysJP
 {
     protected $ical_url;
@@ -23,13 +28,15 @@ class holidaysJP
 
 
     /**
-     * API生成 メイン処理
+     * APIファイル生成 メイン処理
      */
     public function generate()
     {
+        // icalデータを取得して配列化
         $data = $this->get_ical_data();
         $holidays = $this->convert_ical_to_array($data);
 
+        // 一覧データを出力
         $this->generate_api_file($holidays);
 
         // データを年別に分解
@@ -39,6 +46,7 @@ class holidaysJP
                     }, true)
                     ->toArray();
 
+        // 年別データを出力
         foreach ($yearly as $year => $ary) {
             $this->generate_api_file($ary, $year);
         }
@@ -46,12 +54,11 @@ class holidaysJP
 
 
     /**
-     * iCalデータの取得 (不要文字などの削除)
+     * iCalデータの取得 (+ 不要文字などの削除)
      * @return mixed
      */
     function get_ical_data()
     {
-        // iCal データの取得
         $ics = file_get_contents($this->ical_url);
         return str_replace("\r", '', $ics);
     }
@@ -97,13 +104,14 @@ class holidaysJP
      */
     function generate_api_file($data, $year = '')
     {
-        $dir = (! empty($year)) ? self::DIST.'/'.$year : self::DIST;
-        if (! is_dir($dir)) {
-            mkdir($dir);
+        // 出力先フォルダがなければ作成
+        $dist_dir = (! empty($year)) ? self::DIST.'/'.$year : self::DIST;
+        if (! is_dir($dist_dir)) {
+            mkdir($dist_dir);
         }
 
-        // ファイル出力
-        $this->output_json_file("{$dir}/datetime.json", $data);
+        // ファイル出力 (datetime型)
+        $this->output_json_file("{$dist_dir}/datetime.json", $data);
 
         // キーをYMD形式に変換して出力
         $date_data = Collection::make($data)
@@ -112,7 +120,8 @@ class holidaysJP
             })
             ->toArray();
 
-        $this->output_json_file("{$dir}/date.json", $date_data);
+        // ファイル出力 (date)
+        $this->output_json_file("{$dist_dir}/date.json", $date_data);
     }
 
 

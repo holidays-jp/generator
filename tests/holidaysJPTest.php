@@ -2,23 +2,28 @@
 use HolidaysJP\holidaysJP;
 use Carbon\Carbon;
 
+
+/**
+ * Class holidaysJPTest
+ */
 class holidaysJPTest extends PHPUnit_Framework_TestCase
 {
     /**
      * ical解析関連のテスト
      */
-    public function testJson()
+    public function testICALAnalyze()
     {
-        $holidays = new holidaysJP(__DIR__ . '/testdata.ics');
-        $data = $holidays->get_ical_data();
-        $main_data = $holidays->convert_ical_to_array($data);
+        // サンプル ical データの解析テスト
+        $test_file = __DIR__ . '/testdata.ics';
+        $holidays = new holidaysJP($test_file);
+        $data = $holidays->convert_ical_to_array($holidays->get_ical_data());
 
         $expected = [
             1420038000 => '元日',
             1458486000 => '春分の日 振替休日',
             1513954800 => '天皇誕生日',
         ];
-        $this->assertEquals($expected, $main_data);
+        $this->assertEquals($expected, $data);
     }
 
     /**
@@ -31,13 +36,16 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
         $holidays = new holidaysJP($url);
         $holidays->generate();
 
+        // 一覧データのチェック
         $year = Carbon::now()->year;
         $this->checkApiFile('date.json', $year);
         $this->checkApiFile('datetime.json', $year, true);
 
+        // 年別データのチェック (今年)
         $this->checkApiFile("{$year}/date.json", $year);
         $this->checkApiFile("{$year}/datetime.json", $year, true);
 
+        // 年別データのチェック (来年)
         $nextyear = $year + 1;
         $this->checkApiFile("{$nextyear}/date.json", $nextyear);
         $this->checkApiFile("{$nextyear}/datetime.json", $nextyear, true);
@@ -51,6 +59,7 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
      */
     private function checkApiFile($filename, $year, $is_datetime = false)
     {
+        // ファイルの存在チェック
         $filename = dirname(__DIR__) . "/json/{$filename}";
         $this->assertFileExists($filename);
 
