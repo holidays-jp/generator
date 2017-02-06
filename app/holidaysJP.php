@@ -3,7 +3,6 @@ namespace HolidaysJP;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
-// vendor 手元のララベル環境?
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 
