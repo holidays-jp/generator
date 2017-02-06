@@ -65,6 +65,8 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
      */
     private function checkApiFile($filename, $year, $is_datetime = false)
     {
+        $data = array();
+
         // ファイルの存在チェック
         $filename = dirname(__DIR__) . "/json/{$filename}";
 
@@ -75,28 +77,29 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
         $allowExtensions = array('json', 'csv');
 
         $this->assertContains($fileExtension, $allowExtensions);
-
         if ($fileExtension == 'json') {
             $data = json_decode(file_get_contents($filename), true);
         } else {
-            // 行で分けたcsvの配列を作る
-            // [[日付のcsv文字列],[祝日名のcsv文字列]]
+            $csvArrByLine = array();
+            $recordArr = array();
+
+            // $csvArrByLine =
+            //     [0] => "YYYY-mm-dd,holiday", ...
             $csvArrByLine = str_getcsv(file_get_contents($filename), "\n");
 
-            // 行ごとのcsv文字列を配列にする
-           // [[0]=>[[0]=>'YYYYMMDD',[1]=>'YYYYMMDD'..],[1]=>[[0]=>'祝日名'..]]
+            // $recordArr =
+            //     [0] => Array(
+            //        [0] => YYYY-mm-dd,
+            //        [1] => holiday
+            //     )
             foreach($csvArrByLine as $csvLine) {
-                $dateTextArr[] = str_getcsv($csvLine);
+                $recordArr[] = str_getcsv($csvLine);
             }
 
-            // $dateTextArr[0]の値 .. 日付一覧
-            // $dateTextArr[1]の値 .. 祝日名一覧
-            $cnt = count($dateTextArr[0]);
-            $this->assertCount($cnt, $dateTextArr[1]);
-
-            $dates = array_values($dateTextArr[0]);
-            foreach ($dates as $key => $date) {
-                $data[$date] = $dateTextArr[1][$key];
+            foreach ($recordArr as $record) {
+                $date = $record[0];
+                $text = $record[1];
+                $data[$date] = $text;
             }
         }
 

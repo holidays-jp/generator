@@ -3,6 +3,7 @@ namespace HolidaysJP;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
+// vendor 手元のララベル環境?
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 
@@ -144,12 +145,18 @@ class holidaysJP
      */
     protected function output_csv_file($filename, $data)
     {
-        $list = array();
-        $list[] = array_keys($data);
-        $list[] = array_values($data);
+        $recordArr = array();
+        $wholeRecord = array();
+
+        foreach($data as $date => $text) {
+            $wholeRecord[] = $date;
+            $wholeRecord[] = $text;
+        }
+        $recordArr = array_chunk($wholeRecord, 2);
+
         $fp = fopen($filename, 'w');
-        foreach ($list as $fields) {
-            fputcsv($fp, $fields);
+        foreach ($recordArr as $record) {
+            fputcsv($fp, $record);
         }
         fclose($fp);
     }
