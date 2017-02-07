@@ -40,15 +40,21 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
         $year = Carbon::now()->year;
         $this->checkApiFile('date.json', $year);
         $this->checkApiFile('datetime.json', $year, true);
+        $this->checkApiFile('date.csv', $year);
+        $this->checkApiFile('datetime.csv', $year, true);
 
         // 年別データのチェック (今年)
         $this->checkApiFile("{$year}/date.json", $year);
         $this->checkApiFile("{$year}/datetime.json", $year, true);
+        $this->checkApiFile("{$year}/date.csv", $year);
+        $this->checkApiFile("{$year}/datetime.csv", $year, true);
 
         // 年別データのチェック (来年)
         $nextyear = $year + 1;
         $this->checkApiFile("{$nextyear}/date.json", $nextyear);
         $this->checkApiFile("{$nextyear}/datetime.json", $nextyear, true);
+        $this->checkApiFile("{$nextyear}/date.csv", $nextyear);
+        $this->checkApiFile("{$nextyear}/datetime.csv", $nextyear, true);
     }
 
     /**
@@ -59,11 +65,42 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
      */
     private function checkApiFile($filename, $year, $is_datetime = false)
     {
+        $data = array();
+
         // ファイルの存在チェック
         $filename = dirname(__DIR__) . "/json/{$filename}";
+
         $this->assertFileExists($filename);
 
-        $data = json_decode(file_get_contents($filename), true);
+        $fileChkArr = explode(".", $filename);
+        $fileExtension = end($fileChkArr);
+        $allowExtensions = array('json', 'csv');
+
+        $this->assertContains($fileExtension, $allowExtensions);
+        if ($fileExtension == 'json') {
+            $data = json_decode(file_get_contents($filename), true);
+        } else {
+            $csvArrByLine = array();
+            $recordArr = array();
+
+            // $csvArrByLine =
+            //     [0] => "YYYY-mm-dd,holiday", ...
+            $csvArrByLine = str_getcsv(file_get_contents($filename), "\n");
+
+            // $recordArr =
+            //     [0] => Array(
+            //        [0] => YYYY-mm-dd,
+            //        [1] => holiday
+            //     ),...
+            // $data = Array(
+            //     ["YYYY-mm-dd"] => holiday,...,
+            foreach($csvArrByLine as $key => $csvLine) {
+                $recordArr[] = str_getcsv($csvLine);
+                $date = $recordArr[$key][0];
+                $text = $recordArr[$key][1];
+                $data[$date] = $text;
+            }
+        }
 
         // 元日のデータが入っているか
         $dt = Carbon::createFromDate($year)->startOfYear();

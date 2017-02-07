@@ -1,6 +1,5 @@
 <?php
 namespace HolidaysJP;
-
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -112,6 +111,7 @@ class holidaysJP
 
         // ファイル出力 (datetime型)
         $this->output_json_file("{$dist_dir}/datetime.json", $data);
+        $this->output_csv_file("{$dist_dir}/datetime.csv", $data);
 
         // キーをYMD形式に変換して出力
         $date_data = Collection::make($data)
@@ -122,6 +122,7 @@ class holidaysJP
 
         // ファイル出力 (date)
         $this->output_json_file("{$dist_dir}/date.json", $date_data);
+        $this->output_csv_file("{$dist_dir}/date.csv", $date_data);
     }
 
 
@@ -133,5 +134,25 @@ class holidaysJP
     protected function output_json_file($filename, $data)
     {
         file_put_contents($filename, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+    }
+
+
+    /**
+     * CSVファイルを出力
+     * @param $filename
+     * @param $data
+     */
+    protected function output_csv_file($filename, $data)
+    {
+        $recordArr = array();
+
+        foreach($data as $date => $text) {
+            $recordArr[] = [$date, $text];
+        }
+        $fp = fopen($filename, 'w');
+        foreach ($recordArr as $record) {
+            fputcsv($fp, $record);
+        }
+        fclose($fp);
     }
 }
