@@ -145,14 +145,10 @@ class holidaysJP
     protected function output_csv_file($filename, $data)
     {
         $recordArr = array();
-        $wholeRecord = array();
 
         foreach($data as $date => $text) {
-            $wholeRecord[] = $date;
-            $wholeRecord[] = $text;
+            $recordArr[] = [$date, $text];
         }
-        $recordArr = array_chunk($wholeRecord, 2);
-
         $fp = fopen($filename, 'w');
         foreach ($recordArr as $record) {
             fputcsv($fp, $record);

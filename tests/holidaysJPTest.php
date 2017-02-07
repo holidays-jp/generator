@@ -91,14 +91,13 @@ class holidaysJPTest extends PHPUnit_Framework_TestCase
             //     [0] => Array(
             //        [0] => YYYY-mm-dd,
             //        [1] => holiday
-            //     )
-            foreach($csvArrByLine as $csvLine) {
+            //     ),...
+            // $data = Array(
+            //     ["YYYY-mm-dd"] => holiday,...,
+            foreach($csvArrByLine as $key => $csvLine) {
                 $recordArr[] = str_getcsv($csvLine);
-            }
-
-            foreach ($recordArr as $record) {
-                $date = $record[0];
-                $text = $record[1];
+                $date = $recordArr[$key][0];
+                $text = $recordArr[$key][1];
                 $data[$date] = $text;
             }
         }
