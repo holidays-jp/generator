@@ -1,5 +1,5 @@
 api/
 json/
 travis_key*
-
+.idea/
 /vendor/

@@ -80,14 +80,14 @@ class holidaysJP
             if (preg_match('/DTSTART;\D*(\d+)/m', $event, $m) != 1) {
                 continue;
             }
-            $datetime = strtotime($m[1]);
+            $date = Carbon::createFromTimestamp(strtotime($m[1]));
 
             // サマリ(祝日名)を求める
             if (preg_match('/SUMMARY:(.+?)\n/m', $event, $summary) != 1) {
                 continue;
             }
 
-            $results[$datetime] = $summary[1];
+            $results[$date->timestamp] = $this->convert_holiday_name($date, $summary[1]);
         }
 
         // 日付順にソートして返却
@@ -95,6 +95,20 @@ class holidaysJP
         return $results;
     }
 
+
+    /**
+     * @param Carbon $date
+     * @param $name
+     * @return string
+     */
+    public function convert_holiday_name(Carbon $date, $name)
+    {
+        if ($name == '体育の日' && $date->year >= 2020) {
+            return 'スポーツの日';
+        }
+
+        return $name;
+    }
 
     /**
      * APIデータをファイルに出力
